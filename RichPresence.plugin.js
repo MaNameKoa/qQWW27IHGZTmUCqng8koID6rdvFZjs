@@ -1,11 +1,84 @@
 /**
- * @name RichPresence
+ * @name AutoStartRichPresence
  * @version 1.0.2
  *
  * @author MaNameKoa
+ * @authorId 243984826468794368
  * @description Auto starts Rich Presence with configurable settings.
  */
- 
+/*
+
+Copyright (c) 2022 Koa
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+// Updated January 17th, 2022.
+
+const changelog = {
+    title: "AutoStartRichPresence Updated",
+    version: "1.0.2",
+    changelog: [
+      {
+        title: "v2.0.0: Rich presence profiles have been added!",
+        type: "added",
+        items: [
+          "You can now create multiple rich presence configurations and switch between them quickly.",
+          "Your settings have been automatically migrated to a new format that is not compatible with older versions.",
+          "Please report any bugs with the new profile system."
+        ]
+      },
+      {
+        title: "v2.0.1: Bug Fixes",
+        type: "fixed",
+        items: [
+          "Having no buttons no longer causes an error when not using RPC event injection.",
+          "Switching RPC injection on and off quickly no longer crashes the client."
+        ]
+      },
+      {
+        title: "v2.0.2: Update Checker",
+        type: "fixed",
+        items: [
+          "Added back update check that was too hastily replaced with @updateUrl earlier since @updateUrl does not currently work.",
+          "The previous update check was broken anyway due to using the wrong/old class, so no harm done."
+        ]
+      },
+      {
+        title: "v2.0.3: Button Label Validation",
+        type: "fixed",
+        items: [
+          "Button labels are now checked to ensure they are smaller than 32 characters in length.",
+          "Button labels that exceed the limit will now cause an error to appear, and the button will simply be removed rather than having the entire rich presence fail.",
+          "Some settings that should not have trailing whitespaces are now trimmed on save."
+        ]
+      },
+      {
+        title: "v1.0.2: ZeresPluginLibrary Download Prompt",
+        type: "fixed",
+        items: [
+          "The plugin will now automatically prompt you to download ZeresPluginLibrary if it is not already installed."
+        ]
+      }
+    ]
+  };
+  
   // Might not be strict enough, but most people are probably not attempting to use weird URLs
   const validButtonURLRegex = /^http(s)?:\/\/[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/;
   
@@ -3704,7 +3777,7 @@
     }
   }
   
-  class RichPresence {
+  class AutoStartRichPresence {
     constructor() {
       this.initialized = false;
       this.client = null;
@@ -3719,21 +3792,21 @@
           }
         } catch (e) {
           console.error(e);
-          return BdApi.showToast('RichPresence: "ZeresPluginLibrary" was not downloaded, or the download failed. This plugin cannot start.', {type: "error"});
+          return BdApi.showToast('AutoStartRichPresence: "ZeresPluginLibrary" was not downloaded, or the download failed. This plugin cannot start.', {type: "error"});
         }
       }
       this.initialize();
     }
     initialize() {
-      console.log("Starting RichPresence");
-      window.ZeresPluginLibrary?.PluginUpdater?.checkForUpdate?.("RichPresence", changelog.version, "https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/RichPresence/RichPresence.plugin.js");
-      BdApi.showToast("RichPresence has started!");
+      console.log("Starting AutoStartRichPresence");
+      window.ZeresPluginLibrary?.PluginUpdater?.checkForUpdate?.("AutoStartRichPresence", changelog.version, "https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/AutoStartRichPresence/AutoStartRichPresence.plugin.js");
+      BdApi.showToast("AutoStartRichPresence has started!");
       this.startTime = Date.now();
-      this.settings = BdApi.loadData("RichPresence", "settings") || {};
+      this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
       if (this.settings.clientID || this.settings.details || this.settings.state) {
         this.migrateData();
       }
-      this.profiles = BdApi.loadData("RichPresence", "profiles") || [];
+      this.profiles = BdApi.loadData("AutoStartRichPresence", "profiles") || [];
       this.session = {
         editingProfile: this.settings.activeProfileID || 0,
         // When calling start/stop functions, this prevents crashes
@@ -3756,15 +3829,15 @@
       if (this.settings.rpcEventInjection) this.stopRichPresenceInjection();
       this.stopRichPresence();
       this.initialized = false;
-      BdApi.showToast("RichPresence is stopping!");
+      BdApi.showToast("AutoStartRichPresence is stopping!");
     }
     get activeProfile() {
       return this.profiles[this.settings.activeProfileID];
     }
     getSettingsPanel() {
       if (!this.initialized) return;
-      this.settings = BdApi.loadData("RichPresence", "settings") || {};
-      this.profiles = BdApi.loadData("RichPresence", "profiles") || [];
+      this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
+      this.profiles = BdApi.loadData("AutoStartRichPresence", "profiles") || [];
       const panel = document.createElement("form");
       panel.classList.add("form");
       panel.style.setProperty("width", "100%");
@@ -3982,10 +4055,10 @@
       return activityObject;
     }
     updateSettings() {
-      BdApi.saveData("RichPresence", "settings", this.settings);
+      BdApi.saveData("AutoStartRichPresence", "settings", this.settings);
     }
     updateProfiles() {
-      BdApi.saveData("RichPresence", "profiles", this.profiles);
+      BdApi.saveData("AutoStartRichPresence", "profiles", this.profiles);
     }
     deleteProfile(id) {
       this.profiles.splice(id, 1);
@@ -4147,7 +4220,7 @@
       div.innerHTML = '<a href="https://www.youtube.com/watch?v=JIUOreTNj-o" rel="noreferrer noopener" target="_blank">Click here for a video tutorial of how to set up this plugin!</a>';
       panel.appendChild(div);
       div = document.createElement("div");
-      div.innerHTML = '<a href="https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/RichPresence#troubleshooting" rel="noreferrer noopener" target="_blank">Click here for troubleshooting.</a>';
+      div.innerHTML = '<a href="https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence#troubleshooting" rel="noreferrer noopener" target="_blank">Click here for troubleshooting.</a>';
       panel.appendChild(div);
       activeProfileDropdown.getElement().parentNode.style.overflow = "visible";
       editProfileDropdown.getElement().parentNode.style.overflow = "visible";
@@ -4159,9 +4232,9 @@
       });
     }
     migrateData() {
-      let profilesData = BdApi.loadData("RichPresence", "profiles");
+      let profilesData = BdApi.loadData("AutoStartRichPresence", "profiles");
       if (profilesData) return;
-      this.settings = BdApi.loadData("RichPresence", "settings");
+      this.settings = BdApi.loadData("AutoStartRichPresence", "settings");
       this.settings.activeProfileID = 0;
       profilesData = [{
         name: "My Profile"
@@ -4208,4 +4281,4 @@
     }
   }
   
-  module.exports = RichPresence;
+  module.exports = AutoStartRichPresence;
